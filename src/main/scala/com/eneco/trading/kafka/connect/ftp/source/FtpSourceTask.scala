@@ -6,7 +6,7 @@ import java.util
 import org.apache.kafka.connect.errors.ConnectException
 import org.apache.kafka.connect.source.{SourceRecord, SourceTask}
 import org.apache.kafka.connect.storage.OffsetStorageReader
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Stream.Empty
@@ -59,6 +59,9 @@ class FtpSourcePoller(cfg: FtpSourceConfig, offsetStorage: OffsetStorageReader) 
           backoff = backoff.nextSuccess
           fileChanges.flatMap({ case (meta, body, w) =>
             logger.info(s"got some fileChanges: ${meta.attribs.path}")
+
+            println("File body first: " + body.bytes.map("%02X".format(_)).mkString(" "))
+
             fileConverter.convert(monitor2topic(w), meta, body)
           })
         case Failure(err) =>

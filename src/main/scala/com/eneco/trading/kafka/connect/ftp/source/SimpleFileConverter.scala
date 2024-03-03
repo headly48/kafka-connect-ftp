@@ -26,7 +26,7 @@ class SimpleFileConverter(props: util.Map[String, String], offsetStorageReader :
 
   override def convert(topic: String, meta: FileMetaData, body: FileBody): Seq[SourceRecord] = {
     metaStore.set(meta.attribs.path, meta)
-    recordConverter.convert(recordMaker(metaStore, topic, meta, body)).asScala
+    recordConverter.convert(recordMaker(metaStore, topic, meta, body)).asScala.toSeq
   }
 
   override def getFileOffset(path: String): Option[FileMetaData] = metaStore.get(path)
@@ -41,17 +41,25 @@ object SourceRecordProducers {
     .build()
 
   def stringKeyRecord(store: ConnectFileMetaDataStore, topic: String, meta: FileMetaData, body: FileBody): SourceRecord =
-    new SourceRecord(
-      store.fileMetasToConnectPartition(meta), // source part
-      store.fileMetasToConnectOffset(meta), // source off
-      topic, //topic
-      Schema.STRING_SCHEMA, // key sch
-      meta.attribs.path, // key
-      Schema.BYTES_SCHEMA, // val sch
-      body.bytes // val
-    )
+    {
+      println("File body: " + body.bytes.map("%02X".format(_)).mkString(" "))
+
+      new SourceRecord(
+        store.fileMetasToConnectPartition(meta), // source part
+        store.fileMetasToConnectOffset(meta), // source off
+        topic, //topic
+        Schema.STRING_SCHEMA, // key sch
+        meta.attribs.path, // key
+        Schema.BYTES_SCHEMA, // val sch
+        body.bytes // val
+      )
+    }
+
 
   def structKeyRecord(store: ConnectFileMetaDataStore, topic: String, meta: FileMetaData, body: FileBody): SourceRecord = {
+
+    println("File body: " + body.bytes.map("%02X".format(_)).mkString(" "))
+
     new SourceRecord(
       store.fileMetasToConnectPartition(meta), // source part
       store.fileMetasToConnectOffset(meta), // source off

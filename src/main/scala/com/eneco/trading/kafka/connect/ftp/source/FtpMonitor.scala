@@ -5,7 +5,7 @@ import java.nio.file.{FileSystems, Paths}
 import java.time.{Duration, Instant}
 import java.util
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.net.ftp.{FTP, FTPClient, FTPFile, FTPReply}
 import org.apache.commons.net.{ProtocolCommandEvent, ProtocolCommandListener}
@@ -69,7 +69,7 @@ class FtpMonitor(settings:FtpMonitorSettings, fileConverter: FileConverter) exte
   // translates a MonitoredDirectory and previously known FileMetaData into a FileMetaData and FileBody
   def handleFetchedFile(tail: Boolean, prevFetch: Option[FileMetaData], current: FetchedFile): (FileMetaData, FileBody) =
     prevFetch match {
-      case Some(previously) if previously.attribs.size != current.meta.attribs.size || previously.hash != current.meta.hash =>
+      case Some(previously) if (previously.attribs.size != current.meta.attribs.size || previously.hash != current.meta.hash) && current.meta.attribs.path == previously.attribs.path =>
         // file changed in size and/or hash
         logger.info(s"fetched ${current.meta.attribs.path}, it was known before and it changed")
         if (tail) {
@@ -91,16 +91,34 @@ class FtpMonitor(settings:FtpMonitorSettings, fileConverter: FileConverter) exte
         } else {
           // !tail: we're not tailing but dumping the entire file on change
           logger.info(s"dump entire ${current.meta.attribs.path}")
+
+          println("File body first3: " + current.body.map("%02X".format(_)).mkString(" "))
+
           (current.meta.inspectedNow().modifiedNow(), FileBody(current.body, 0))
         }
-      case Some(_) =>
+      case Some(previously) if (current.meta.attribs.path == previously.attribs.path) =>
         // file didn't change
         logger.info(s"fetched ${current.meta.attribs.path}, it was known before and it didn't change")
+        logger.info(s"Prev path ${previously.attribs.path}")
+
         (current.meta.inspectedNow(), EmptyFileBody)
+      case Some(_) =>
+        // file is new
+        logger.info(s"fetched ${current.meta.attribs.path}, wasn't known before but (same)")
+        logger.info(s"dump entire ${current.meta.attribs.path}")
+
+        // Log out the file bytes
+        logger.info(s"File bytes: ${current.body.mkString(", ")}")
+
+        (current.meta.inspectedNow().modifiedNow(), FileBody(current.body, 0))
       case None =>
         // file is new
         logger.info(s"fetched ${current.meta.attribs.path}, wasn't known before")
         logger.info(s"dump entire ${current.meta.attribs.path}")
+
+        // Log out the file bytes
+        logger.info(s"File bytes: ${current.body.mkString(", ")}")
+
         (current.meta.inspectedNow().modifiedNow(), FileBody(current.body, 0))
     }
 
@@ -153,8 +171,11 @@ class FtpMonitor(settings:FtpMonitorSettings, fileConverter: FileConverter) exte
         return Failure(new Exception("cannot connect to ftp because of some unreported error"))
       }
       logger.info("successfully connected to the ftp server and logged in")
-      ftp.enterLocalPassiveMode()
-      logger.info("passive we are")
+
+      // TODO: Make this configurable
+      //      ftp.enterLocalPassiveMode()
+      //      logger.info("passive we are")
+
       ftp.setFileType(FTP.BINARY_FILE_TYPE)
       ftp.setControlKeepAliveTimeout(15) //send NOOP every [seconds]
     }

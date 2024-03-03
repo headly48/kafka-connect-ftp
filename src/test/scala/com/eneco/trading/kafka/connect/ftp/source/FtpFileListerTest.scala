@@ -1,15 +1,17 @@
 package com.eneco.trading.kafka.connect.ftp.source
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.net.ftp.{FTPClient, FTPFile}
-import org.scalatest.mockito.MockitoSugar
 import org.mockito.Mockito._
-import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
+import org.scalatest.BeforeAndAfter
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
 /**
   * Created by jhofman on 13/03/2017.
   */
-class FtpFileListerTest extends FunSuite with Matchers with BeforeAndAfter with StrictLogging with MockitoSugar {
+class FtpFileListerTest extends AnyFunSuite with Matchers with BeforeAndAfter with StrictLogging with MockitoSugar {
 
   def mockFile(name: String) = {
     val f = mock[FTPFile]

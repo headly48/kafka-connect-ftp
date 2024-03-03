@@ -7,11 +7,11 @@ apply plugin: "com.gorylenko.gradle-git-properties"
 
 
 ext {
-    scalaMajorVersion = '2.11'
-    scala = '2.11.7'
+    scalaMajorVersion = '2.13'
+    scala = '2.13.9'
     scalaTestVersion = '3.0.1'
-    scalaLoggingVersion = '2.1.2'
-    kafkaVersion = '0.10.2.0'
+    scalaLoggingVersion = '3.9.5'
+    kafkaVersion = '3.7.0'
     avroVersion = '1.7.7'
     slf4jVersion = "1.7.21"
     confluentVersion = '3.2.0'
@@ -24,20 +24,22 @@ ext {
 }
 
 compileScala {
-    scalaCompileOptions.additionalParameters = ["-feature", "-Xexperimental", "-language:implicitConversions"]
+    scalaCompileOptions.additionalParameters = ["-feature", "-Xexperimental", "-language:implicitConversions", "-language:postfixOps", "-deprecation:false"]
 }
 
 dependencies {
     compile "org.scala-lang:scala-library:$scala"
-    compile "com.typesafe.scala-logging:scala-logging-slf4j_$scalaMajorVersion:$scalaLoggingVersion"
+    compile "com.typesafe.scala-logging:scala-logging_2.13:3.9.2"
     compile "org.apache.kafka:connect-api:$kafkaVersion"
-    compile "com.github.pathikrit:better-files_2.11:$pathikritVersion"
+    compile "com.github.pathikrit:better-files_2.13:3.8.0"
     compile "org.apache.ftpserver:ftpserver-core:$ftpserverVersion"
     compile "commons-net:commons-net:$commonsNetVersion"
     compile "commons-codec:commons-codec:$commonsCodecVersion"
 
-    testCompile "org.scalatest:scalatest_$scalaMajorVersion:$scalaTestVersion"
+    testCompile "org.scalatest:scalatest_2.13:3.2.0"
     testCompile "org.mockito:mockito-all:$mockitoVersion"
+    testCompile "org.scalatestplus:mockito-3-2_2.13:3.1.2.0"
+    testCompile 'com.vladsch.flexmark:flexmark-all:0.35.10'
 
     testRuntime "org.pegdown:pegdown:$pegdownVersion"
     testRuntime "org.slf4j:slf4j-log4j12:$slf4jVersion"
