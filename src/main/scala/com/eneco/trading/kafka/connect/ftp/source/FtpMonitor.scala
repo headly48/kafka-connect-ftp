@@ -92,7 +92,7 @@ class FtpMonitor(settings:FtpMonitorSettings, fileConverter: FileConverter) exte
           // !tail: we're not tailing but dumping the entire file on change
           logger.info(s"dump entire ${current.meta.attribs.path}")
 
-          println("File body first3: " + current.body.map("%02X".format(_)).mkString(" "))
+//          println("File body first3: " + current.body.map("%02X".format(_)).mkString(" "))
 
           (current.meta.inspectedNow().modifiedNow(), FileBody(current.body, 0))
         }
@@ -108,7 +108,7 @@ class FtpMonitor(settings:FtpMonitorSettings, fileConverter: FileConverter) exte
         logger.info(s"dump entire ${current.meta.attribs.path}")
 
         // Log out the file bytes
-        logger.info(s"File bytes: ${current.body.mkString(", ")}")
+        // logger.info(s"File bytes: ${current.body.mkString(", ")}")
 
         (current.meta.inspectedNow().modifiedNow(), FileBody(current.body, 0))
       case None =>
@@ -117,7 +117,7 @@ class FtpMonitor(settings:FtpMonitorSettings, fileConverter: FileConverter) exte
         logger.info(s"dump entire ${current.meta.attribs.path}")
 
         // Log out the file bytes
-        logger.info(s"File bytes: ${current.body.mkString(", ")}")
+        // logger.info(s"File bytes: ${current.body.mkString(", ")}")
 
         (current.meta.inspectedNow().modifiedNow(), FileBody(current.body, 0))
     }

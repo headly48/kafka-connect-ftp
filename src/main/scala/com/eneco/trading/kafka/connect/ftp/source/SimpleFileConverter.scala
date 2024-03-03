@@ -42,7 +42,7 @@ object SourceRecordProducers {
 
   def stringKeyRecord(store: ConnectFileMetaDataStore, topic: String, meta: FileMetaData, body: FileBody): SourceRecord =
     {
-      println("File body: " + body.bytes.map("%02X".format(_)).mkString(" "))
+//      println("File body: " + body.bytes.map("%02X".format(_)).mkString(" "))
 
       new SourceRecord(
         store.fileMetasToConnectPartition(meta), // source part
@@ -58,7 +58,7 @@ object SourceRecordProducers {
 
   def structKeyRecord(store: ConnectFileMetaDataStore, topic: String, meta: FileMetaData, body: FileBody): SourceRecord = {
 
-    println("File body: " + body.bytes.map("%02X".format(_)).mkString(" "))
+//    println("File body: " + body.bytes.map("%02X".format(_)).mkString(" "))
 
     new SourceRecord(
       store.fileMetasToConnectPartition(meta), // source part
